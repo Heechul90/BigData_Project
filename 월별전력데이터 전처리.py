@@ -40,4 +40,17 @@ data['max'] = (data[['2011', '2012', '2013', '2014', '2015', '2016', '2017']].ma
 data.to_csv('Data/2011-2017 가정용 월별 전력량.csv',
             encoding = 'euc-kr')
 
-data.sort_values(by = 'mean', ascending = False)
+data = pd.read_csv('Data/2011-2017 가정용 월별 전력량.csv',
+                   index_col= 0,
+                   encoding = 'euc-kr')
+data
+data.sort_values(by = 'mean', ascending = True)
+
+data['평균대비증가율'] = data['mean'] / 1820.57
+
+data.sort_values(by = 'std', ascending = True)
+data['표준편차대비증가율'] = data['std'] / 56.65
+data
+
+data.to_csv('Data/2011-2017 가정용 월별 전력량2.csv',
+            encoding = 'euc-kr')
