@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-# 로우데이터 불러오기
+# 데이터 불러오기
 raw_data = pd.read_csv('Data/용도별_전력사용량_20191018094502.csv',
                        encoding = 'euc-kr')
 raw_data
