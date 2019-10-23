@@ -23,6 +23,7 @@ data = pd.DataFrame(data)
 data.columns
 data.rename(columns = {0 : '전력량'},
             inplace = True)
+
 data.head()
 
 data.sort_values(by = '전력량', ascending = True)
