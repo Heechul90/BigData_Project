@@ -8,52 +8,71 @@ from random import *
 raw_CusInfo = pd.read_csv('Data/고객정보.csv',
                           encoding = 'euc-kr')
 
-raw_CusInfo
+PilotProject = pd.DataFrame(columns = ['CustomNum',
+                                       'FamilyNum',
+                                       'Power'])
 
-cusinfo = raw_CusInfo.copy()
-cusinfo.dtypes
-cusinfo['구성원수'][96]
 
-power = []
+for Num in range(1, 101):
 
-for i in range(10):
+    CustomNum = 'A' + str(Num)
 
-    for j in cusinfo['구성원수']:
+    if Num >= 100:
+        FamilyNum = 9
+        Power = uniform(0.490484, 0.696090)
+        PilotProject = PilotProject.append(pd.DataFrame([[CustomNum, FamilyNum, Power]],
+                                                        columns=['CustomNum', 'FamilyNum', 'Power']))
 
-        if cusinfo['구성원수'][j] == 1:
-            power1 = uniform(0.271300, 0.302311)
-            power.append(power1)
+    elif Num >= 99:
+        FamilyNum = 8
+        Power = uniform(0.607767, 0.679965)
+        PilotProject = PilotProject.append(pd.DataFrame([[CustomNum, FamilyNum, Power]],
+                                                        columns=['CustomNum', 'FamilyNum', 'Power']))
 
-        if cusinfo['구성원수'][j] == 2:
-            power1 = uniform(0.271300, 0.302311)
-            power.append(power1)
+    elif Num >= 97:
+        FamilyNum = 7
+        Power = uniform(0.511305, 0.565084)
+        PilotProject = PilotProject.append(pd.DataFrame([[CustomNum, FamilyNum, Power]],
+                                                        columns=['CustomNum', 'FamilyNum', 'Power']))
 
-        if cusinfo['구성원수'][j] == 3:
-            power1 = uniform(0.271300, 0.302311)
-            power.append(power1)
+    elif Num >= 95:
+        FamilyNum = 6
+        Power = uniform(0.519145, 0.570670)
+        PilotProject = PilotProject.append(pd.DataFrame([[CustomNum, FamilyNum, Power]],
+                                                        columns=['CustomNum', 'FamilyNum', 'Power']))
 
-        if cusinfo['구성원수'][j] == 4:
-            power1 = uniform(0.271300, 0.302311)
-            power.append(power1)
+    elif Num >= 90:
+        FamilyNum = 5
+        Power = uniform(0.466227, 0.520347)
+        PilotProject = PilotProject.append(pd.DataFrame([[CustomNum, FamilyNum, Power]],
+                                                        columns=['CustomNum', 'FamilyNum', 'Power']))
 
-        if cusinfo['구성원수'][j] == 5:
-            power1 = uniform(0.271300, 0.302311)
-            power.append(power1)
+    elif Num >= 65:
+        FamilyNum = 4
+        Power = uniform(0.444917, 0.494666)
+        PilotProject = PilotProject.append(pd.DataFrame([[CustomNum, FamilyNum, Power]],
+                                                        columns=['CustomNum', 'FamilyNum', 'Power']))
 
-        if cusinfo['구성원수'][j] == 6:
-            power1 = uniform(0.271300, 0.302311)
-            power.append(power1)
+    elif Num >= 42:
+        FamilyNum = 3
+        Power = uniform(0.422958, 0.469866)
+        PilotProject = PilotProject.append(pd.DataFrame([[CustomNum, FamilyNum, Power]],
+                                                        columns=['CustomNum', 'FamilyNum', 'Power']))
 
-        if cusinfo['구성원수'][j] == 7:
-            power1 = uniform(0.271300, 0.302311)
-            power.append(power1)
+    elif Num >= 14:
+        FamilyNum = 2
+        Power = uniform(0.378854, 0.424387)
+        PilotProject = PilotProject.append(pd.DataFrame([[CustomNum, FamilyNum, Power]],
+                                                        columns=['CustomNum', 'FamilyNum', 'Power']))
 
-        if cusinfo['구성원수'][j] == 8:
-            power1 = uniform(0.271300, 0.302311)
-            power.append(power1)
+    else:
+        FamilyNum = 1
+        Power = uniform(0.271300, 0.302311)
+        PilotProject = PilotProject.append(pd.DataFrame([[CustomNum, FamilyNum, Power]],
+                                                        columns=['CustomNum', 'FamilyNum', 'Power']))
 
-        if cusinfo['구성원수'][j] == 9:
-            power1 = uniform(0.271300, 0.302311)
-            power.append(power1)
 
-power
+
+
+PilotProject
+
