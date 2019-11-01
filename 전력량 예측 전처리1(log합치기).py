@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 
-directory = 'Data/5yrs/'
+directory = 'Data/data/'
 outfile_name = 'merged_MeterHour.log'
 
 out_file = open(outfile_name, 'w')
