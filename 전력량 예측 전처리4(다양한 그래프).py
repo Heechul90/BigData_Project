@@ -67,8 +67,10 @@ Month_mean.head()
 Month_mean.to_csv('Data/Watt(월별 평균 전력량).csv',
                   encoding = 'euc-kr')
 
+Month_mean.reset_index(inplace = True)
 
-Month_mean.plot()
+plt.plot('month', 'elec', data = Month_mean, marker = 'o', color = 'mediumvioletred')
+plt.show()
 
 # 월별 전체 전력량
 Month_sum = data.pivot_table('elec',
@@ -79,7 +81,14 @@ Month_sum.head()
 Month_sum.to_csv('Data/Watt(월별 전체 전력량).csv',
                  encoding = 'euc-kr')
 
-Month_sum.plot(kind = 'bar')
+Month_sum.reset_index(inplace = True)
+
+
+bars = ('1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월')
+y_pos = np.arange(len(bars))
+plt.bar(y_pos, Month_sum['elec'], color=(0.2, 0.4, 0.6, 0.6))
+plt.xticks(y_pos, bars, color='orange', rotation=45, fontweight='bold', fontsize='17', horizontalalignment='right')
+plt.tick_params(labelbottom='off')
 
 # 가구원수별 평균 전력량
 Family_mean = data.pivot_table('elec',
@@ -90,7 +99,16 @@ Family_mean.head()
 Family_mean.to_csv('Data/Watt(가구원수별 평균 전력량).csv',
                   encoding = 'euc-kr')
 
-Family_mean.plot(kind = 'bar')
+Family_mean.reset_index(inplace = True)
+
+# Make a fake dataset
+
+bars = ('1인', '2인', '3인', '4인', '5인', '6인', '7인', '8인', '9인')
+y_pos = np.arange(len(bars))
+
+plt.bar(y_pos, Family_mean['elec'], color=(0.1, 0.1, 0.1, 0.1),  edgecolor='blue')
+plt.xticks(y_pos, bars)
+plt.show()
 
 
 # 가구원수별 전체 전력량

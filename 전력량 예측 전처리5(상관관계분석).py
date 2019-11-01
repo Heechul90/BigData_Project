@@ -22,7 +22,7 @@ plt.rcParams['axes.unicode_minus'] = False
 
 
 # 데이터 불러오기
-dataset = pd.read_csv('Data/dataset(watt).csv',
+dataset = pd.read_csv('Data/dataset.csv',
                       index_col = 0,
                       encoding = 'euc-kr')
 
@@ -56,5 +56,5 @@ data.columns
 data.head()
 
 
-data.to_csv('Data/dataset2(watt).csv',
+data.to_csv('Data/dataset2.csv',
             encoding = 'euc-kr')

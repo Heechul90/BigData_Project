@@ -3,7 +3,7 @@ import pandas as pd
 
 
 # 데이터 불러오기
-watt_data = pd.read_csv('Data/Watt(일).csv',
+watt_data = pd.read_csv('Data/Watt(시계열 일별 전체 전력량).csv',
                         encoding = 'euc-kr')
 watt_data.head()
 watt_data.tail()
@@ -19,13 +19,13 @@ weather_data.tail()
 len(weather_data)
 
 dataset = weather_data
-dataset['watt'] = watt_data['elec']
-dataset['date'] = watt_data['day']
+dataset['elec'] = watt_data['elec']
+dataset['date'] = watt_data['yearmonthday']
 del dataset['year']
 del dataset['month']
 del dataset['day']
 dataset.head()
 dataset = dataset.set_index('date')
 
-dataset.to_csv('Data/dataset(watt).csv',
+dataset.to_csv('Data/dataset.csv',
                encoding = 'euc-kr')

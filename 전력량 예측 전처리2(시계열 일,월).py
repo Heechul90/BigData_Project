@@ -3,7 +3,7 @@ import pandas as pd
 
 
 # 데이터 불러오기
-raw_data = pd.read_csv('Data/merged_MeterHour.log',
+raw_data = pd.read_csv('merged_MeterHour.log',
                        sep = ',')
 raw_data.head()
 
@@ -92,8 +92,7 @@ data2 = data1.pivot_table('elec',
 data2.to_csv('Data/Watt(user별 일일 전력소비량).csv',
              encoding = 'euc-kr')
 
-data1 = pd.read_csv('Data/Watt(년,년월,년월일).csv',
-                    encoding = 'euc-kr')
+
 # 시계열 일자로
 dataDay = data1.pivot_table('elec',
                             index = 'yearmonthday',
