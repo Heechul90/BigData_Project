@@ -44,7 +44,10 @@ learning_rate = 0.01 #학습률
 raw_data = pd.read_csv('Data/dataset3.csv',
                        encoding = 'euc-kr')
 raw_data.info()
-del raw_data['date']
+raw_data['date'] = raw_data['date'].astype(str)
+raw_data['date'] = pd.to_datetime(raw_data['date'])
+raw_data.set_index('date', inplace = True)
+# del raw_data['date']
 
 watt = raw_data.values.astype(np.float)
 print('watt_info.shape: ', watt.shape)

@@ -15,6 +15,17 @@ domain.head()
 
 data = pd.merge(data, domain, on = 'mac', how = 'right')
 data.head()
+data[data['user_id'].isin(['H047'])]
+
+H031:9
+H076:6
+H068:7
+H005:5
+H024:5
+H091:5
+H060:5
+H074:5
+H047:5
 
 ##### 그래프 그리기
 # 한글 사용하기
@@ -76,6 +87,14 @@ plt.bar(y_pos, Month_mean['elec'], color=(0.2, 0.4, 0.6, 0.6))
 plt.xticks(y_pos, bars, color='orange', rotation=45, fontweight='bold', fontsize='17', horizontalalignment='right')
 plt.tick_params(labelbottom='off')
 
+bars = ('1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월')
+y_pos = np.arange(len(bars))
+plt.bar(y_pos, Month_mean['elec'], color=(0.1, 0.1, 0.1, 0.1),  edgecolor='blue')
+plt.title('2014-2018 월별 평균 전력량')
+plt.ylabel('전력량')
+plt.xticks(y_pos, bars)
+plt.show()
+
 # 월별 전체 전력량
 Month_sum = data.pivot_table('elec',
                              index = 'month',
@@ -111,6 +130,14 @@ bars = ('1인', '2인', '3인', '4인', '5인', '6인', '7인', '8인', '9인')
 y_pos = np.arange(len(bars))
 
 plt.bar(y_pos, Family_mean['elec'], color=(0.1, 0.1, 0.1, 0.1),  edgecolor='blue')
+plt.xticks(y_pos, bars)
+plt.show()
+
+bars = ('1인', '2인', '3인', '4인', '5인', '6인', '7인', '8인', '9인')
+y_pos = np.arange(len(bars))
+plt.bar(y_pos, Family_mean['elec'], color=(0.1, 0.1, 0.1, 0.1),  edgecolor='blue')
+plt.title('2014-2018 가구원수별 평균 전력량')
+plt.ylabel('전력량')
 plt.xticks(y_pos, bars)
 plt.show()
 
@@ -167,9 +194,9 @@ User_sum_Top10
 
 bars = User_sum_Top10['user_id']
 y_pos = np.arange(len(bars))
-plt.bar(y_pos, User_sum_Top10['elec'], color=(0.5, 0.1, 0.5, 0.6))
-plt.title('My title')
-plt.xlabel('categories')
-plt.ylabel('values')
+plt.bar(y_pos, User_sum_Top10['elec'].round(2), color=(0.1, 0.1, 0.1, 0.1),  edgecolor='blue')
+plt.title('유저별 전체 전력량 TOP10')
+# plt.xlabel('categories')
+plt.ylabel('전력량')
 plt.xticks(y_pos, bars)
 plt.show()
