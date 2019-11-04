@@ -44,6 +44,10 @@ learning_rate = 0.01 #학습률
 raw_data = pd.read_csv('Data/dataset3.csv',
                        encoding = 'euc-kr')
 raw_data.info()
+# data_des = raw_data.describe()
+# data_des.to_csv('Data/정보.csv',
+#                 encoding = 'euc-kr')
+
 raw_data['date'] = raw_data['date'].astype(str)
 raw_data['date'] = pd.to_datetime(raw_data['date'])
 raw_data.set_index('date', inplace = True)
@@ -175,6 +179,20 @@ test_predict = ''  # 테스트용데이터로 예측한 결과
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
+
+def build_accuracy(predictions, labels_):
+
+    """
+
+    Create accuracy
+
+    """
+
+    correct_pred = tf.equal(tf.cast(tf.round(predictions), tf.int32), labels_)
+
+    accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+    return accuracy
+
 # # 학습
 start_time = datetime.datetime.now()  # 시작시간을 기록한다
 print('학습을 시작합니다...')
@@ -195,6 +213,10 @@ for epoch in range(epoch_num):
         print("epoch: {}, train_error(A): {}, test_error(B): {}, B-A: {}".format(epoch + 1, train_error, test_error,
                                                                                  test_error - train_error))
 
+
+
+print(build_accuracy(test_predict, testY))
+
 # 하이퍼파라미터 출력
 print('input_data_column_cnt:', input_data_column_cnt, end='')
 print(',output_data_column_cnt:', output_data_column_cnt, end='')
@@ -214,7 +236,7 @@ print(',min_test_error:', np.min(test_error_summary))
 
 # 결과 그래프 출력
 plt.figure(1)
-plt.plot(train_error_summary, 'gold')
+plt.plot(train_error_summary, 'r')
 plt.plot(test_error_summary, 'b')
 plt.xlabel('Epoch(x1000)')
 plt.ylabel('Root Mean Square Error')
@@ -225,6 +247,8 @@ plt.plot(test_predict, 'b')
 plt.xlabel('Time Period')
 plt.ylabel('elec')
 plt.show()
+
+
 
 # sequence length만큼의 가장 최근 데이터를 슬라이싱한다
 recent_data = np.array([x[len(x) - seq_length:]])
