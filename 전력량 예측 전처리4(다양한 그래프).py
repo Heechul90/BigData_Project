@@ -52,6 +52,7 @@ FamilyMonth_mean = data.pivot_table('elec',
                                     columns = 'month',
                                     aggfunc = 'mean')
 FamilyMonth_mean.head()
+FamilyMonth_mean.describe()
 
 FamilyMonth_mean.to_csv('Data/Watt(가구원수별 월별 평균 전력량).csv',
                         encoding = 'euc-kr')

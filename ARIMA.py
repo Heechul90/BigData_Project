@@ -9,6 +9,11 @@ raw_data = pd.Series.from_csv('Data/Watt(시계열 일별 전체 전력량).csv'
                               encoding = 'euc-kr',
                               parse_dates = True)
 
+# raw_data1 = pd.read_csv('Data/Watt(시계열 일별 전체 전력량).csv',
+# #                               encoding = 'euc-kr')
+# #
+# # raw_data1.describe()
+
 data = raw_data.copy()
 data.head()
 data.dtypes
