@@ -31,7 +31,7 @@ def reverse_min_max_scaling(org_x, x):
 input_data_column_cnt = 9 # 입력데이터의 컬럼 개수
 output_data_column_cnt = 1 # 결과데이터의 컬럼 개수
 
-seq_length = 30 # 1개 시퀀스의 길이)시계열데이터 입력 개수)
+seq_length = 365 # 1개 시퀀스의 길이)시계열데이터 입력 개수)
 rnn_cell_hidden_dim = 20 # 각 셀의 (hidden)출력 크기
 forget_bias = 1.0 # 양각편향 (기본값 1.0)
 num_stacked_layers = 1 # stacked LSTM layers 개수
@@ -247,6 +247,7 @@ plt.plot(test_predict, 'b')
 plt.xlabel('Time Period')
 plt.ylabel('elec')
 plt.show()
+
 
 
 
