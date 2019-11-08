@@ -33,8 +33,3 @@ data.to_csv('Data/wattage.csv',
             index = False,
             encoding = 'euc-kr')
 
-
-
-
-
-
