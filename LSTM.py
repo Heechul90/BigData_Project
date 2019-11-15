@@ -122,3 +122,4 @@ y_pred = model.predict(X_test_t)
 print(y_pred)
 
 len(y_pred)
+
