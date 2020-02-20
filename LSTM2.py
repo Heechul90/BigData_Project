@@ -28,14 +28,14 @@ def reverse_min_max_scaling(org_x, x):
     return (x_np * (org_x_np.max() - org_x_np.min() + 1e-7)) + org_x_np.min()
 
 # 하이퍼파라미터
-input_data_column_cnt = 9 # 입력데이터의 컬럼 개수
-output_data_column_cnt = 1 # 결과데이터의 컬럼 개수
+input_data_column_cnt = 9     # 입력데이터의 컬럼 개수
+output_data_column_cnt = 1    # 결과데이터의 컬럼 개수
 
-seq_length = 365 # 1개 시퀀스의 길이)시계열데이터 입력 개수)
-rnn_cell_hidden_dim = 20 # 각 셀의 (hidden)출력 크기
-forget_bias = 1.0 # 양각편향 (기본값 1.0)
-num_stacked_layers = 1 # stacked LSTM layers 개수
-keep_prob = 1.0 # dropout 할 때 keep 할 비율
+seq_length = 365              # 1개 시퀀스의 길이)시계열데이터 입력 개수)
+rnn_cell_hidden_dim = 20      # 각 셀의 (hidden)출력 크기
+forget_bias = 1.0             # 양각편향 (기본값 1.0)
+num_stacked_layers = 1        # stacked LSTM layers 개수
+keep_prob = 1.0               # dropout 할 때 keep 할 비율
 
 epoch_num = 1000 # 에폭 횟수
 learning_rate = 0.01 #학습률
