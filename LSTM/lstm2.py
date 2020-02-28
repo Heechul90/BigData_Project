@@ -102,7 +102,7 @@ raw_data.set_index('date', inplace = True)
 # sns.heatmap(data = raw_data.corr(), annot=True, fmt = '.2f', linewidths = 0.5)
 
 
-## 데이터를
+## 데이터를 array로 바꿈
 watt = raw_data.values.astype(np.float)
 print('watt_info.shape: ', watt.shape)
 print('watt_info[0]: ', watt[0])
@@ -111,13 +111,13 @@ print('watt_info[0]: ', watt[0])
 ### 데이터 전처리
 
 # 날씨 컬럼 정규화
-weather = watt[:, :-1]
-norm_weather = min_max_scaling(weather)  # 전력량 데이터 정규화 처리
-print('weather.shape: ', weather.shape)
-print('weather[0]: ', weather[0])
-print('norm_weather.shape: ', norm_weather.shape)
-print('norm_weather[0]: ', norm_weather[0])
-print('-'*100)   # 화면상 구분용
+# weather = watt[:, :-1]
+# norm_weather = min_max_scaling(weather)  # 전력량 데이터 정규화 처리
+# print('weather.shape: ', weather.shape)
+# print('weather[0]: ', weather[0])
+# print('norm_weather.shape: ', norm_weather.shape)
+# print('norm_weather[0]: ', norm_weather[0])
+# print('-'*100)   # 화면상 구분용
 
 # from sklearn.preprocessing import MinMaxScaler
 # min_max_scaler = MinMaxScaler()
@@ -125,14 +125,14 @@ print('-'*100)   # 화면상 구분용
 # trainA.min()
 # trainA.max()
 
-# 전력량 컬럼 정규화
-elec = watt[:, -1:]
-elec_norm = min_max_scaling(elec)
-print('elec.shape: ', elec.shape)
-print('elec[0]: ', elec[0])
-print('elec_norm.shape: ', elec_norm.shape)
-print('elec_norm[0]: ', elec_norm[0])
-print('-'*100)   # 화면상 구분용
+# # 전력량 컬럼 정규화
+# elec = watt[:, -1:]
+# elec_norm = min_max_scaling(elec)
+# print('elec.shape: ', elec.shape)
+# print('elec[0]: ', elec[0])
+# print('elec_norm.shape: ', elec_norm.shape)
+# print('elec_norm[0]: ', elec_norm[0])
+# print('-'*100)   # 화면상 구분용
 
 # from sklearn.preprocessing import MinMaxScaler
 # min_max_scaler = MinMaxScaler()
@@ -141,11 +141,11 @@ print('-'*100)   # 화면상 구분용
 # trainB.max()
 
 # 배열 결합
-x = np.concatenate((norm_weather, elec_norm), axis = 1)
-print('x.shape: ', x.shape)
-print('x[0]: ', x[0])
-print('x[-1]: ', x[-1])
-print('-'*100)   # 화면상 구분용
+# x = np.concatenate((norm_weather, elec_norm), axis = 1)
+# print('x.shape: ', x.shape)
+# print('x[0]: ', x[0])
+# print('x[-1]: ', x[-1])
+# print('-'*100)   # 화면상 구분용
 
 # AB = np.concatenate((trainA, trainB), axis = 1)
 # print('AB.shape: ', AB.shape)
@@ -165,11 +165,11 @@ print('-'*100)   # 화면상 구분용
 # print('a[0]: ', a[0])
 # print('a[-1]: ', a[-1])
 
-# from sklearn.preprocessing import MinMaxScaler
-# min_max_scaler = MinMaxScaler()
-# c = min_max_scaler.fit_transform(watt)
-# c.min()
-# c.max()
+from sklearn.preprocessing import MinMaxScaler
+min_max_scaler = MinMaxScaler()
+x = min_max_scaler.fit_transform(watt)
+x.min()
+x.max()
 
 # d = watt[:, 0:1]
 # from sklearn.preprocessing import MinMaxScaler
@@ -189,15 +189,15 @@ print('y[-1]: ', y[-1])
 dataX = []  # 입력으로 사용될 Sequence Data
 dataY = []  # 출력(타켓)으로 사용
 
-for i in range(0, len(y) - (seq_length)):      # 1796
-    _x = x[i: i + seq_length]                # [0 : 0 + 30]
-    _y = y[i + seq_length]                   # [0 + 30] 다음에 나타날 전력량(정답)
+for i in range(0, len(y) - (seq_length)):          # 1796
+    _x = x[i: i + seq_length]                      # [0 : 0 + 30]
+    _y = y[i + seq_length]                         # [0 + 30] 다음에 나타날 전력량(정답)
     if i is 0:
         print(_x, "->", _y)        # 첫번째 행만 출력해 봄
     dataX.append(_x)               # dataX 리스트에 추가
     dataY.append(_y)               # dataY 리스트에 추가
 
-
+len(dataX)
 ### 학습용/테스트용 데이터 생성
 # 전체 70%를 학습용 데이터로 사용
 train_size = int(len(dataY) * 0.7)
@@ -216,6 +216,10 @@ testY = np.array(dataY[train_size:len(dataY)])
 ########################################################################################################################
 
 ### 텐서플로우 플레이스홀더 생성
+# tf.placeholder(dtype, [shape], name)
+# dtype : 데이터 타입을 의미하며 반드시 적어주어야 한다.
+# shape : 입력 데이터의 형태를 의미한다. 상수 값이 될 수도 있고 다차원 배열의 정보가 들어올 수도 있다. ( 디폴트 파라미터로 None 지정 )
+# name  : 해당 placeholder의 이름을 부여하는 것으로 적지 않아도 된다.  ( 디폴트 파라미터로 None 지정 )
 # 입력 X, 출력 Y를 생성한다
 X = tf.placeholder(tf.float32, [None, seq_length, input_data_column_cnt])
 print("X: ", X)
@@ -246,6 +250,10 @@ def lstm_cell():
     return cell
 
 
+# Multi Layer Perceptron RNN: layer 연결
+# 입력층과 출력층 사이에 하나 이상의 중간층(hidden layer: 은닉층)이 존재하는 신경망
+# 네트워크는 입력층, 은닉층, 출력층 방향으로 연결
+# 각 층내의 연결과 출력층에서 입력층으로의 직접적인 연결은 존재하지 않은 전방향 (Feedforward) 네트워크
 # num_stacked_layers개의 층으로 쌓인 Stacked RNNs 생성
 stackedRNNs = [lstm_cell() for _ in range(num_stacked_layers)]
 multi_cells = tf.contrib.rnn.MultiRNNCell(stackedRNNs, state_is_tuple=True) if num_stacked_layers > 1 else lstm_cell()
@@ -256,6 +264,12 @@ print("hypothesis: ", hypothesis)
 
 # [:, -1]를 잘 살펴보자. LSTM RNN의 마지막 (hidden)출력만을 사용했다.
 # 과거 여러일수의 전력량을 이용해서 다음날의 전력량 1개를 에측하기때문에 many-to-one 형태이다
+# one to one: Vanilla Neural Networks
+# one to many: Image Captioning - 한장의 이미지에 대해 여러개의 문장으로 해석하는 형태, '소년이 사과를 고르고 있다'
+# many to one: Sentiment Classification - 여러개의 문장으로 구성된 글을 해석하여, 감정상태를 나타내는 형태, '긍정', '부정'
+# many to many: Machine Translation - 여러개의 문장에서 각각의 문장들을 다른 언어로 해석해주는 형태, 'Hello' -> '안녕'
+# many to many: Video classification - 여러개의 이미지에 대해 여러개의 설병, 번역을 하는 형태
+
 hypothesis = tf.contrib.layers.fully_connected(hypothesis[:, -1], output_data_column_cnt, activation_fn=tf.identity)
 
 # 손실함수로 평균제곱오차를 사용한다
@@ -276,7 +290,10 @@ train_error_summary = []  # 학습용 데이터의 오류를 중간 중간 기�
 test_error_summary = []  # 테스트용 데이터의 오류를 중간 중간 기록한다
 test_predict = ''  # 테스트용데이터로 예측한 결과
 
-
+### 세션 정의
+# 세션 생성: Session 객체 생성. 분산 환경에서는 계산 노드와의 연결을 만든다.
+# 세션 사용: run 메서드에 그래프를 입력하면 출력 값을 계산하여 반환한다. 분산 환경에서는 계산 노드로 그래프를 보내 계산을 수행한다.
+# 세션 종료: close 메서드. with 문을 사용하면 명시적으로 호출하지 않아도 된다.
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
@@ -336,14 +353,14 @@ print(',min_test_error:', np.min(test_error_summary))
 
 # 결과 그래프 출력
 plt.figure(1)
-plt.plot(train_error_summary, 'r')
-plt.plot(test_error_summary, 'b')
+plt.plot(train_error_summary, 'red')
+plt.plot(test_error_summary, 'blue')
 plt.xlabel('Epoch(x1000)')
 plt.ylabel('Root Mean Square Error')
 
 plt.figure(2)
-plt.plot(testY, 'r')
-plt.plot(test_predict, 'b')
+plt.plot(testY, 'red')
+plt.plot(test_predict, 'blue')
 plt.xlabel('Time Period')
 plt.ylabel('elec')
 plt.show()
@@ -353,12 +370,14 @@ plt.show()
 
 # sequence length만큼의 가장 최근 데이터를 슬라이싱한다
 recent_data = np.array([x[len(x) - seq_length:]])
-print("recent_data.shape:", recent_data.shape)
-print("recent_data:", recent_data)
+print("recent_data.shape: ", recent_data.shape)
+print("recent_data: ", recent_data)
 
-# 내일 종가를 예측해본다
+# 내일 전력량을 예측해본다
 test_predict = sess.run(hypothesis, feed_dict={X: recent_data})
 
-print("test_predict", test_predict[0])
-test_predict = reverse_min_max_scaling(elec, test_predict)  # 금액데이터 역정규화한다
-print("Tomorrow's elec price", test_predict[0])  # 예측한 주가를 출력한다
+print("test_predict: ", test_predict[0])
+# test_predict = reverse_min_max_scaling(elec, test_predict)  # 전력량 데이터를 다시 역정규화
+# print("Tomorrow's elec price: ", test_predict[0])             # 내일 전력량 데이터
+
+# test_predict:  [0.41508612]
