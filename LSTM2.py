@@ -4,41 +4,76 @@ import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
 
+###
 # 랜덤에 의해 똑같은 결과를 재현하도록 시드 설정
 # 하이퍼파라미터 튜닝하기 위한 용도(흔들리면 무엇때문에 좋아졌는지 알기 어려움)
 tf.set_random_seed(777)
 
-# Standardization
+### Standardization (정규분포를 따르는 데이터의 표준정규분포로의 표준화: 평균과 표준편차 이용)
+# 각 observation이 평균을 기준으로 어느 정도 떨어져 있는지를 나타낼때 사용한다
+# 서로 다른 통계 데이터들을 비교하기 용이하게 하기 위해
+# 어떤 변수를 어떤 표본에 대해 통계를 구하였는가에 따라 평균과 분산값은 제각각이기 때문에, 서로 비교하기가 불편하다
+# 표준화를 하면 평균은 0, 분산과 표준편차는 1이 되므로 비교하기가 용이하다
+# 각 값에서 평균을 빼고, 표준편차로 나눠줌
 def data_standardization(x):
     x_np = np.asarray(x)
     return (x_np - x_np.mean()) / x.np.std()
 
+# a = [80, 90, 100, 110, 120]
+# a = pd.DataFrame(a)
+# a.mean()
+# a.std()
+# print(20 / a.std())
+# print(10 / a.std())
+# print(0 / a.std())
+# print(-10 / a.std())
+# print(-20 / a.std())
+
+
+### Min-Max soaling (이상치/특이값이 포함되어 있는 데이터의 표준화: 중앙값과 IQR(InterQuarile Range) 이용)
+# 사이킷런에서 sklearn.preprocessing.MinMaxScaler(), sklearn.preprocessing.minmax_scale()로 제공
 # 너무 작거나 너무 큰 값이 학습을 방해하는 것을 방지하고자 정규화한다.
 # x가 양수라는 가정하에 최소값과 최대값을 이용하여 0-1사이의 값으로 변환
-# Min-Max soaling
+# (값 - 최소값) / (최대값 - 최소값)
+
 def min_max_scaling(x):
     x_np = np.asarray(x)
     return (x_np - x_np.min()) / (x_np.max() - x_np.min() + 1e-7) # 1e-7 0으로 나누는 오류 예방차원
 
-# 정규화된 값을 원래의 값으로 되돌린다
+######
+# from sklearn.preprocessing import MinMaxScaler
+# a = [80, 90, 100, 110, 120]
+# a = pd.DataFrame(a)
+# a.min()
+# a.max()
+# min_max_scaler = MinMaxScaler()
+# trainA = min_max_scaler.fit_transform(a)
+#
+# from sklearn.preprocessing import minmax_scale
+# a_MinMax_scaled = minmax_scale(a, axis=0, copy=True)
+# a_MinMax_scaled
+
+
+### 정규화된 값을 원래의 값으로 되돌린다
 # 정규화하기 이전의 org_x값과 되돌리고 싶은 x를 입력하면 역정규화된 값을 리턴한다
 def reverse_min_max_scaling(org_x, x):
     org_x_np = np.asarray(org_x)
     x_np = np.asarray(x)
     return (x_np * (org_x_np.max() - org_x_np.min() + 1e-7)) + org_x_np.min()
 
-# 하이퍼파라미터
+
+### 하이퍼파라미터
 input_data_column_cnt = 9     # 입력데이터의 컬럼 개수
 output_data_column_cnt = 1    # 결과데이터의 컬럼 개수
 
-seq_length = 365              # 1개 시퀀스의 길이)시계열데이터 입력 개수)
+seq_length = 30              # 1개 시퀀스의 길이)시계열데이터 입력 개수)
 rnn_cell_hidden_dim = 20      # 각 셀의 (hidden)출력 크기
-forget_bias = 1.0             # 양각편향 (기본값 1.0)
+forget_bias = 1.0             # 망각편향 (기본값 1.0)
 num_stacked_layers = 1        # stacked LSTM layers 개수
 keep_prob = 1.0               # dropout 할 때 keep 할 비율
 
-epoch_num = 1000 # 에폭 횟수
-learning_rate = 0.01 #학습률
+epoch_num = 1000              # 에폭 횟수
+learning_rate = 0.01          # 학습률
 
 # 데이터 불러오기
 raw_data = pd.read_csv('Data/dataset3.csv',
@@ -52,15 +87,23 @@ raw_data['date'] = raw_data['date'].astype(str)
 raw_data['date'] = pd.to_datetime(raw_data['date'])
 raw_data.set_index('date', inplace = True)
 # del raw_data['date']
+# raw_data.elec.plot()
+# raw_data.avg_tem.plot()
+# raw_data.corr().plot()
+#
+# import seaborn as sns
+# sns.heatmap(data = raw_data.corr(), annot=True, fmt = '.2f', linewidths = 0.5)
 
+
+## 데이터를
 watt = raw_data.values.astype(np.float)
 print('watt_info.shape: ', watt.shape)
 print('watt_info[0]: ', watt[0])
 
 
-# 데이터 전처리
-# 날씨 컬럼 정규화
+### 데이터 전처리
 
+# 날씨 컬럼 정규화
 weather = watt[:, :-1]
 norm_weather = min_max_scaling(weather)  # 전력량 데이터 정규화 처리
 print('weather.shape: ', weather.shape)
@@ -69,8 +112,13 @@ print('norm_weather.shape: ', norm_weather.shape)
 print('norm_weather[0]: ', norm_weather[0])
 print('-'*100)   # 화면상 구분용
 
+# from sklearn.preprocessing import MinMaxScaler
+# min_max_scaler = MinMaxScaler()
+# trainA = min_max_scaler.fit_transform(weather)
+# trainA.min()
+# trainA.max()
 
-## 전력량 컬럼 정규화
+# 전력량 컬럼 정규화
 elec = watt[:, -1:]
 elec_norm = min_max_scaling(elec)
 print('elec.shape: ', elec.shape)
@@ -79,14 +127,54 @@ print('elec_norm.shape: ', elec_norm.shape)
 print('elec_norm[0]: ', elec_norm[0])
 print('-'*100)   # 화면상 구분용
 
+# from sklearn.preprocessing import MinMaxScaler
+# min_max_scaler = MinMaxScaler()
+# trainB = min_max_scaler.fit_transform(elec)
+# trainB.min()
+# trainB.max()
 
+# 배열 결합
 x = np.concatenate((norm_weather, elec_norm), axis = 1)
 print('x.shape: ', x.shape)
 print('x[0]: ', x[0])
 print('x[-1]: ', x[-1])
 print('-'*100)   # 화면상 구분용
 
-y = x[:, [-1]]   # 타겟은 전력량
+# AB = np.concatenate((trainA, trainB), axis = 1)
+# print('AB.shape: ', AB.shape)
+# print('AB[0]: ', AB[0])
+# print('AB[-1]: ', AB[-1])
+# print('-'*100)   # 화면상 구분용
+
+
+### 왜 날씨데이터와 전력량데이터 정규화를 따로하는지 의문이다
+### 하지만 따로 정규화를 하고 결합을 했을 때와 값이랑 통채로 정규화를 했을 때의 값은 달랐다
+### sklearn.preprocessing을 이용하면 정규화할때 각 컬럼별로 정규화를 하지만
+### 위에서 만든 min_max_scaling은 전체 데이터에서 최소값, 최대값으로 계산을 하기 때문에 값이 달라진다
+# a = min_max_scaling(watt)
+# a.min()
+# a.max()
+# print('a.shape: ', a.shape)
+# print('a[0]: ', a[0])
+# print('a[-1]: ', a[-1])
+
+# from sklearn.preprocessing import MinMaxScaler
+# min_max_scaler = MinMaxScaler()
+# c = min_max_scaler.fit_transform(watt)
+# c.min()
+# c.max()
+
+# d = watt[:, 0:1]
+# from sklearn.preprocessing import MinMaxScaler
+# min_max_scaler = MinMaxScaler()
+# d = min_max_scaler.fit_transform(d)
+# d.min()
+# d.max()
+
+
+
+
+y = x[:, [-1]]       # 타겟은 전력량
 print('y[0]: ', y[0])
 print('y[-1]: ', y[-1])
 
@@ -94,17 +182,19 @@ print('y[-1]: ', y[-1])
 dataX = []  # 입력으로 사용될 Sequence Data
 dataY = []  # 출력(타켓)으로 사용
 
-for i in range(0, len(y) - seq_length):
-    _x = x[i: i + seq_length]
-    _y = y[i + seq_length]  # 다음 나타날 주가(정답)
+for i in range(0, len(y) - (seq_length + 7)):      # 1796
+    _x = x[i: i + seq_length]                # [0 : 0 + 30]
+    _y = y[i + seq_length : i + seq_length + 7]                   # [0 + 30] 다음에 나타날 전력량(정답)
     if i is 0:
-        print(_x, "->", _y)  # 첫번째 행만 출력해 봄
-    dataX.append(_x)  # dataX 리스트에 추가
-    dataY.append(_y)  # dataY 리스트에 추가
+        print(_x, "->", _y)        # 첫번째 행만 출력해 봄
+    dataX.append(_x)               # dataX 리스트에 추가
+    dataY.append(_y)               # dataY 리스트에 추가
 
-# 학습용/테스트용 데이터 생성
+
+### 학습용/테스트용 데이터 생성
 # 전체 70%를 학습용 데이터로 사용
 train_size = int(len(dataY) * 0.7)
+
 # 나머지(30%)를 테스트용 데이터로 사용
 test_size = len(dataY) - train_size
 
@@ -116,7 +206,7 @@ trainY = np.array(dataY[0:train_size])
 testX = np.array(dataX[train_size:len(dataX)])
 testY = np.array(dataY[train_size:len(dataY)])
 
-# 텐서플로우 플레이스홀더 생성
+### 텐서플로우 플레이스홀더 생성
 # 입력 X, 출력 Y를 생성한다
 X = tf.placeholder(tf.float32, [None, seq_length, input_data_column_cnt])
 print("X: ", X)
@@ -155,14 +245,15 @@ hypothesis, _states = tf.nn.dynamic_rnn(multi_cells, X, dtype=tf.float32)
 print("hypothesis: ", hypothesis)
 
 # [:, -1]를 잘 살펴보자. LSTM RNN의 마지막 (hidden)출력만을 사용했다.
-# 과거 여러 거래일의 주가를 이용해서 다음날의 주가 1개를 예측하기때문에 MANY-TO-ONE형태이다
+# 과거 여러일수의 전력량을 이용해서 다음날의 전력량 1개를 에측하기때문에 many-to-one 형태이다
 hypothesis = tf.contrib.layers.fully_connected(hypothesis[:, -1], output_data_column_cnt, activation_fn=tf.identity)
 
 # 손실함수로 평균제곱오차를 사용한다
 loss = tf.reduce_sum(tf.square(hypothesis - Y))
+
 # 최적화함수로 AdamOptimizer를 사용한다
-optimizer = tf.train.AdamOptimizer(learning_rate)
 # optimizer = tf.train.RMSPropOptimizer(learning_rate) # LSTM과 궁합 별로임
+optimizer = tf.train.AdamOptimizer(learning_rate)
 
 train = optimizer.minimize(loss)
 
@@ -181,13 +272,9 @@ sess.run(tf.global_variables_initializer())
 
 
 def build_accuracy(predictions, labels_):
-
     """
-
     Create accuracy
-
     """
-
     correct_pred = tf.equal(tf.cast(tf.round(predictions), tf.int32), labels_)
 
     accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
@@ -196,6 +283,7 @@ def build_accuracy(predictions, labels_):
 # # 학습
 start_time = datetime.datetime.now()  # 시작시간을 기록한다
 print('학습을 시작합니다...')
+
 for epoch in range(epoch_num):
     _, _loss = sess.run([train, loss], feed_dict={X: trainX, Y: trainY})
     if ((epoch + 1) % 100 == 0) or (epoch == epoch_num - 1):  # 100번째마다 또는 마지막 epoch인 경우
@@ -210,7 +298,9 @@ for epoch in range(epoch_num):
         test_error_summary.append(test_error)
 
         # 현재 오류를 출력한다
-        print("epoch: {}, train_error(A): {}, test_error(B): {}, B-A: {}".format(epoch + 1, train_error, test_error,
+        print("epoch: {}, train_error(A): {}, test_error(B): {}, B-A: {}".format(epoch + 1,
+                                                                                 train_error,
+                                                                                 test_error,
                                                                                  test_error - train_error))
 
 
@@ -261,4 +351,4 @@ test_predict = sess.run(hypothesis, feed_dict={X: recent_data})
 
 print("test_predict", test_predict[0])
 test_predict = reverse_min_max_scaling(elec, test_predict)  # 금액데이터 역정규화한다
-print("Tomorrow's stock price", test_predict[0])  # 예측한 주가를 출력한다
+print("Tomorrow's elec price", test_predict[0])  # 예측한 주가를 출력한다
