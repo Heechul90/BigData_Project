@@ -33,7 +33,7 @@ def data_standardization(x):
 # print(-20 / a.std())
 
 
-### Min-Max soaling (이상치/특이값이 포함되어 있는 데이터의 표준화: 중앙값과 IQR(InterQuarile Range) 이용)
+### Min-Max soaling (이상치/특이값이 포함되어 있는 데이터의 표준화)
 # 사이킷런에서 sklearn.preprocessing.MinMaxScaler(), sklearn.preprocessing.minmax_scale()로 제공
 # StandardScaler(X): 평균이 0과 표준편차가 1이 되도록 변환.
 # RobustScaler(X)  : 중앙값(median)이 0, IQR(interquartile range)이 1이 되도록 변환.
@@ -86,6 +86,9 @@ learning_rate = 0.01          # 학습률
 raw_data = pd.read_csv('Data/dataset3.csv',
                        encoding = 'euc-kr')
 raw_data.info()
+
+# raw_data.loc[raw_data['avg_tem'] >= 30, ['avg_tem']]
+
 # data_des = raw_data.describe()
 # data_des.to_csv('Data/정보.csv',
 #                 encoding = 'euc-kr')
@@ -94,12 +97,12 @@ raw_data['date'] = raw_data['date'].astype(str)
 raw_data['date'] = pd.to_datetime(raw_data['date'])
 raw_data.set_index('date', inplace = True)
 # del raw_data['date']
-# raw_data.elec.plot()
-# raw_data.avg_tem.plot()
-# raw_data.corr().plot()
+raw_data.elec.plot()
+raw_data.avg_tem.plot()
+raw_data.corr().plot()
 #
-# import seaborn as sns
-# sns.heatmap(data = raw_data.corr(), annot=True, fmt = '.2f', linewidths = 0.5)
+import seaborn as sns
+sns.heatmap(data = raw_data.corr(), annot=True, fmt = '.2f', linewidths = 0.5)
 
 
 ## 데이터를 array로 바꿈
@@ -113,6 +116,9 @@ print('watt_info[0]: ', watt[0])
 # 날씨 컬럼 정규화
 weather = watt[:, :-1]
 norm_weather = min_max_scaling(weather)  # 전력량 데이터 정규화 처리
+norm_weather.min()
+norm_weather.max()
+
 print('weather.shape: ', weather.shape)
 print('weather[0]: ', weather[0])
 print('norm_weather.shape: ', norm_weather.shape)
@@ -139,6 +145,7 @@ print('-'*100)   # 화면상 구분용
 # trainB = min_max_scaler.fit_transform(elec)
 # trainB.min()
 # trainB.max()
+
 
 # 배열 결합
 x = np.concatenate((norm_weather, elec_norm), axis = 1)
@@ -209,6 +216,7 @@ test_size = len(dataY) - train_size
 trainX = np.array(dataX[0:train_size])
 trainY = np.array(dataY[0:train_size])
 
+
 # 데이터를 잘라 테스트용 데이터 생성
 testX = np.array(dataX[train_size:len(dataX)])
 testY = np.array(dataY[train_size:len(dataY)])
@@ -268,7 +276,7 @@ print("hypothesis: ", hypothesis)
 # one to many: Image Captioning - 한장의 이미지에 대해 여러개의 문장으로 해석하는 형태, '소년이 사과를 고르고 있다'
 # many to one: Sentiment Classification - 여러개의 문장으로 구성된 글을 해석하여, 감정상태를 나타내는 형태, '긍정', '부정'
 # many to many: Machine Translation - 여러개의 문장에서 각각의 문장들을 다른 언어로 해석해주는 형태, 'Hello' -> '안녕'
-# many to many: Video classification - 여러개의 이미지에 대해 여러개의 설병, 번역을 하는 형태
+# many to many: Video classification - 여러개의 이미지에 대해 여러개의 설명, 번역을 하는 형태
 
 hypothesis = tf.contrib.layers.fully_connected(hypothesis[:, -1], output_data_column_cnt, activation_fn=tf.identity)
 
