@@ -1,4 +1,4 @@
-### 전력량 예측하기
+##### 전력량 예측하기
 
 ### 함수
 import tensorflow as tf
@@ -7,222 +7,66 @@ import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
 
-### seed 설정
-# 랜덤에 의해 똑같은 결과를 재현하도록 시드 설정
-# 하이퍼파라미터 튜닝하기 위한 용도(흔들리면 무엇때문에 좋아졌는지 알기 어려움)
-tf.set_random_seed(777)
-
-### Standardization (정규분포를 따르는 데이터의 표준정규분포로의 표준화: 평균과 표준편차 이용)
-# 각 observation이 평균을 기준으로 어느 정도 떨어져 있는지를 나타낼때 사용한다
-# 서로 다른 통계 데이터들을 비교하기 용이하게 하기 위해
-# 어떤 변수를 어떤 표본에 대해 통계를 구하였는가에 따라 평균과 분산값은 제각각이기 때문에, 서로 비교하기가 불편하다
-# 표준화를 하면 평균은 0, 분산과 표준편차는 1이 되므로 비교하기가 용이하다
-# 각 값에서 평균을 빼고, 표준편차로 나눠줌
-def data_standardization(x):
-    x_np = np.asarray(x)
-    return (x_np - x_np.mean()) / x.np.std()
-
-# a = [80, 90, 100, 110, 120]
-# a = pd.DataFrame(a)
-# a.mean()
-# a.std()
-# print(20 / a.std())
-# print(10 / a.std())
-# print(0 / a.std())
-# print(-10 / a.std())
-# print(-20 / a.std())
-
-
-### Min-Max soaling (이상치/특이값이 포함되어 있는 데이터의 표준화)
-# 사이킷런에서 sklearn.preprocessing.MinMaxScaler(), sklearn.preprocessing.minmax_scale()로 제공
-# StandardScaler(X): 평균이 0과 표준편차가 1이 되도록 변환.
-# RobustScaler(X)  : 중앙값(median)이 0, IQR(interquartile range)이 1이 되도록 변환.
-# MinMaxScaler(X)  : 최대값이 각각 1, 최소값이 0이 되도록 변환
-# MaxAbsScaler(X)  : 0을 기준으로 절대값이 가장 큰 수가 1또는 -1이 되도록 변환
-# 너무 작거나 너무 큰 값이 학습을 방해하는 것을 방지하고자 정규화한다.
-# x가 양수라는 가정하에 최소값과 최대값을 이용하여 0-1사이의 값으로 변환
-# (값 - 최소값) / (최대값 - 최소값)
-
-def min_max_scaling(x):
-    x_np = np.asarray(x)
-    return (x_np - x_np.min()) / (x_np.max() - x_np.min() + 1e-7) # 1e-7 0으로 나누는 오류 예방차원
-
-######
-# from sklearn.preprocessing import MinMaxScaler
-# a = [80, 90, 100, 110, 120]
-# a = pd.DataFrame(a)
-# a.min()
-# a.max()
-# min_max_scaler = MinMaxScaler()
-# trainA = min_max_scaler.fit_transform(a)
-#
-# from sklearn.preprocessing import minmax_scale
-# a_MinMax_scaled = minmax_scale(a, axis=0, copy=True)
-# a_MinMax_scaled
-
-
-### 정규화된 값을 원래의 값으로 되돌린다
-# 정규화하기 이전의 org_x값과 되돌리고 싶은 x를 입력하면 역정규화된 값을 리턴한다
-def reverse_min_max_scaling(org_x, x):
-    org_x_np = np.asarray(org_x)ep
-    x_np = np.asarray(x)
-    return (x_np * (org_x_np.max() - org_x_np.min() + 1e-7)) + org_x_np.min()
-
-
 ### 하이퍼파라미터
-input_data_column_cnt = 9     # 입력데이터의 컬럼 개수
-output_data_column_cnt = 1    # 결과데이터의 컬럼 개수
+input_data_column_cnt = 321     # 입력데이터의 컬럼 개수
+output_data_column_cnt = 321    # 결과데이터의 컬럼 개수
 
-seq_length = 30               # 1개 시퀀스의 길이)시계열데이터 입력 개수)
+seq_length = 24*7               # 1개 시퀀스의 길이)시계열데이터 입력 개수)
 rnn_cell_hidden_dim = 20      # 각 셀의 (hidden)출력 크기
 forget_bias = 1.0             # 망각편향 (기본값 1.0) - 셀 스테이트에서 어떤 정보를 버릴지 선택하는 과정
 num_stacked_layers = 1        # stacked LSTM layers 개수
 keep_prob = 1.0               # dropout 할 때 keep 할 비율
 
-epoch_num = 1000              # 에폭 횟수
+epoch_num = 100              # 에폭 횟수
 learning_rate = 0.01          # 학습률
 
-# 데이터 불러오기
-raw_data = pd.read_csv('Data/dataset3.csv',
-                       encoding = 'euc-kr')
-raw_data.info()
+### 데이터 불러오기
+raw_data = pd.read_csv('../dataset/UCI/electricity.csv', sep=',', header=None)
 
-# raw_data.loc[raw_data['avg_tem'] >= 30, ['avg_tem']]
+df = raw_data.copy()
+# df.head()
+# df.describe()
+# df.plot()
 
-# data_des = raw_data.describe()
-# data_des.to_csv('Data/정보.csv',
-#                 encoding = 'euc-kr')
-
-raw_data['date'] = raw_data['date'].astype(str)
-raw_data['date'] = pd.to_datetime(raw_data['date'])
-raw_data.set_index('date', inplace = True)
-# del raw_data['date']
-raw_data.elec.plot()
-raw_data.avg_tem.plot()
-raw_data.corr().plot()
-#
-import seaborn as sns
-sns.heatmap(data = raw_data.corr(), annot=True, fmt = '.2f', linewidths = 0.5)
+########################################################################################################################
+from sklearn.preprocessing import MinMaxScaler
+min_max_scaler = MinMaxScaler()
+df_norm = min_max_scaler.fit_transform(df)
+# df_norm.min()
+# df_norm.max()
+# len(df_norm)
 
 
-## 데이터를 array로 바꿈
-watt = raw_data.values.astype(np.float)
-print('watt_info.shape: ', watt.shape)
-print('watt_info[0]: ', watt[0])
+data = []  # 입력으로 사용될 Sequence Data
+label = []  # 출력(타켓)으로 사용
 
+for i in range(0, len(df_norm) - (seq_length)):          # 26136
+    _x = df_norm[i: i + seq_length]                      # [0 : 0 + 30]
+    _y = df_norm[i + seq_length]                         # [0 + 30] 다음에 나타날 전력량(정답)
 
-### 데이터 전처리
-
-# 날씨 컬럼 정규화
-weather = watt[:, :-1]
-norm_weather = min_max_scaling(weather)  # 전력량 데이터 정규화 처리
-norm_weather.min()
-norm_weather.max()
-
-print('weather.shape: ', weather.shape)
-print('weather[0]: ', weather[0])
-print('norm_weather.shape: ', norm_weather.shape)
-print('norm_weather[0]: ', norm_weather[0])
-print('-'*100)   # 화면상 구분용
-
-# from sklearn.preprocessing import MinMaxScaler
-# min_max_scaler = MinMaxScaler()
-# trainA = min_max_scaler.fit_transform(weather)
-# trainA.min()
-# trainA.max()
-
-# 전력량 컬럼 정규화
-elec = watt[:, -1:]
-elec_norm = min_max_scaling(elec)
-print('elec.shape: ', elec.shape)
-print('elec[0]: ', elec[0])
-print('elec_norm.shape: ', elec_norm.shape)
-print('elec_norm[0]: ', elec_norm[0])
-print('-'*100)   # 화면상 구분용
-
-# from sklearn.preprocessing import MinMaxScaler
-# min_max_scaler = MinMaxScaler()
-# trainB = min_max_scaler.fit_transform(elec)
-# trainB.min()
-# trainB.max()
-
-
-# 배열 결합
-x = np.concatenate((norm_weather, elec_norm), axis = 1)
-print('x.shape: ', x.shape)
-print('x[0]: ', x[0])
-print('x[-1]: ', x[-1])
-print('-'*100)   # 화면상 구분용
-
-# AB = np.concatenate((trainA, trainB), axis = 1)
-# print('AB.shape: ', AB.shape)
-# print('AB[0]: ', AB[0])
-# print('AB[-1]: ', AB[-1])
-# print('-'*100)   # 화면상 구분용
-
-
-### 왜 날씨데이터와 전력량데이터 정규화를 따로하는지 의문이다
-### 하지만 따로 정규화를 하고 결합을 했을 때와 값이랑 통채로 정규화를 했을 때의 값은 달랐다
-### sklearn.preprocessing을 이용하면 정규화할때 각 컬럼별로 정규화를 하지만
-### 위에서 만든 min_max_scaling은 전체 데이터에서 최소값, 최대값으로 계산을 하기 때문에 값이 달라진다
-# a = min_max_scaling(watt)
-# a.min()
-# a.max()
-# print('a.shape: ', a.shape)
-# print('a[0]: ', a[0])
-# print('a[-1]: ', a[-1])
-
-# from sklearn.preprocessing import MinMaxScaler
-# min_max_scaler = MinMaxScaler()
-# c = min_max_scaler.fit_transform(watt)
-# c.min()
-# c.max()
-
-# d = watt[:, 0:1]
-# from sklearn.preprocessing import MinMaxScaler
-# min_max_scaler = MinMaxScaler()
-# d = min_max_scaler.fit_transform(d)
-# d.min()
-# d.max()
+    data.append(_x)               # dataX 리스트에 추가
+    label.append(_y)               # dataY 리스트에 추가
 
 
 
-
-y = x[:, [-1]]       # 타겟은 전력량
-print('y[0]: ', y[0])
-print('y[-1]: ', y[-1])
-
-
-dataX = []  # 입력으로 사용될 Sequence Data
-dataY = []  # 출력(타켓)으로 사용
-
-for i in range(0, len(y) - (seq_length)):          # 1796
-    _x = x[i: i + seq_length]                      # [0 : 0 + 30]
-    _y = y[i + seq_length]                         # [0 + 30] 다음에 나타날 전력량(정답)
-    if i is 0:
-        print(_x, "->", _y)        # 첫번째 행만 출력해 봄
-    dataX.append(_x)               # dataX 리스트에 추가
-    dataY.append(_y)               # dataY 리스트에 추가
-
-len(dataX)
 ### 학습용/테스트용 데이터 생성
 # 전체 70%를 학습용 데이터로 사용
-train_size = int(len(dataY) * 0.7)
+train_size = int(len(data) * 0.8)
 
 # 나머지(30%)를 테스트용 데이터로 사용
-test_size = len(dataY) - train_size
+test_size = len(data) - train_size
 
 # 데이터를 잘라 학습용 데이터 생성
-trainX = np.array(dataX[0:train_size])
-trainY = np.array(dataY[0:train_size])
+trainX = np.array(data[0:train_size])
+trainY = np.array(label[0:train_size])
 
 
 # 데이터를 잘라 테스트용 데이터 생성
-testX = np.array(dataX[train_size:len(dataX)])
-testY = np.array(dataY[train_size:len(dataY)])
+testX = np.array(data[train_size:len(data)])
+testY = np.array(label[train_size:len(label)])
+
 
 ########################################################################################################################
-
 ### 텐서플로우 플레이스홀더 생성
 # tf.placeholder(dtype, [shape], name)
 # dtype : 데이터 타입을 의미하며 반드시 적어주어야 한다.
@@ -231,14 +75,14 @@ testY = np.array(dataY[train_size:len(dataY)])
 # 입력 X, 출력 Y를 생성한다
 X = tf.placeholder(tf.float32, [None, seq_length, input_data_column_cnt])
 print("X: ", X)
-Y = tf.placeholder(tf.float32, [None, 1])
+Y = tf.placeholder(tf.float32, [None, 321])
 print("Y: ", Y)
 
 # 검증용 측정지표를 산출하기 위한 targets, predictions를 생성한다
-targets = tf.placeholder(tf.float32, [None, 1])
+targets = tf.placeholder(tf.float32, [None, 321])
 print("targets: ", targets)
 
-predictions = tf.placeholder(tf.float32, [None, 1])
+predictions = tf.placeholder(tf.float32, [None, 321])
 print("predictions: ", predictions)
 
 
@@ -393,4 +237,3 @@ print("Tomorrow's elec price: ", test_predict[0])             # 내일 전력량
 
 # test_predict [0.5380935]
 # Tomorrow's elec price [787583.9]
-
